@@ -1,4 +1,5 @@
 import React from "react";
+import { useWhyDidYouUpdate } from "ahooks";
 
 type ListPopup = {
   name: string;
@@ -10,9 +11,9 @@ type SortProps = {
   onClickSort: (obj: ListPopup) => void;
 }
 
-type OnClickPopup = MouseEvent & {
-  path: Node[];
-}
+// type OnClickPopup = MouseEvent & {
+//   path: Node[];
+// }
 
 export const listPopup: ListPopup[] = [
   {name: "популярности(DESC)", type: "rating"},
@@ -23,10 +24,11 @@ export const listPopup: ListPopup[] = [
   {name: "алфавиту(ASC)", type: "-title"},
 ];
 
-const Sort: React.FC<SortProps> = ({value, onClickSort}) =>  {
+const Sort: React.FC<SortProps> = React.memo(({value, onClickSort}) =>  {
+  // useWhyDidYouUpdate('Sort', { value, onClickSort});
   const [openPopup, setOpenPopup] = React.useState(false);
   const sortRef = React.useRef<HTMLDivElement>(null);
-
+  console.log('render');
   const onSelectItem = (obj: ListPopup) => {
     onClickSort(obj);
     setOpenPopup(false);
@@ -89,6 +91,6 @@ const Sort: React.FC<SortProps> = ({value, onClickSort}) =>  {
       )}
     </div>
   );
-}
+});
 
 export default Sort;

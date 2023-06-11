@@ -23,7 +23,7 @@ function Header() {
               <p>самая вкусная пицца во вселенной</p>
             </div>
           </Link>
-          <Search/>
+          {location.pathname !== "/cart" && <Search/>}
         </div>
         {location.pathname !== "/cart" && (
           <div className="header__cart">

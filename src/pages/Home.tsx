@@ -26,9 +26,9 @@ function Home() {
   // const {searchValue} = React.useContext(myContext);
 
 
-  const onChangeCategory = (id: number) => {
+  const onChangeCategory = React.useCallback((id: number) => {
     dispatch(setCategoryId(id));
-  }
+  }, []);
 
   const fetchPizzas = async () => {
 
