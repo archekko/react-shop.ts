@@ -1,27 +1,25 @@
 import React from "react";
 import qs from "qs";
 import { useNavigate } from "react-router";
-import { Link } from "react-router-dom";
 import { useSelector } from 'react-redux';
-import { setCategoryId, setSortId, setCurrentPage } from "../redux/slices/filterSlice";
-import { fetchProducts } from "../redux/slices/productsSlice";
+import { setCategoryId, setSortId, setCurrentPage, selectFilters} from "../redux/slices/filterSlice";
+import {Status, fetchProducts, selectProductData } from "../redux/slices/productsSlice";
 import Categories from "../components/Categories";
-import Sort from "../components/Sort";
 import Product from "../components/Product";
 import Skeleton from "../components/Product/Skeleton";
 import Pagination from "../components/Pagination";
 import NotFounded from "./NotFounded";
 import { useAppDispatch } from "../redux/store";
+import Sort from "../components/Sort";
 
 
-function Home() {
+const Home: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const isSearch = React.useRef(false);
   const isMounted = React.useRef(false);
 
-  const {categoryId, sortId, currentPage, searchValue} = useSelector((state:any) => state.filter);
-  const {items, status} = useSelector((state:any) => state.products);
+  const {categoryId, sortId, currentPage, searchValue} = useSelector(selectFilters);
+  const {items, status} = useSelector(selectProductData);
 
   // const {searchValue} = React.useContext(myContext);
 
@@ -30,18 +28,12 @@ function Home() {
     dispatch(setCategoryId(id));
   }, []);
 
-  const fetchPizzas = async () => {
 
+  const fetchPizzas = async () => {
     const sortBy = sortId.type.replace('-', '');
     const order = sortId.type.includes('-') ? 'asc' : 'desc'; 
     const category = categoryId > 0 ? `&category=${categoryId}` : "";
     const search = searchValue ? `&search=${searchValue}` : "";
-
-    // axios.get(`https://6458ed6a8badff578efef80d.mockapi.io/items?page=${currentPage}&limit=4${search}${category}&sortBy=${sortBy}&order=${order}`)
-    // .then((res) => {
-    //   setItems(res.data);
-    //   setSkeleton(false);
-    // });
 
     dispatch(fetchProducts({
       sortBy,
@@ -55,67 +47,26 @@ function Home() {
     window.scrollTo(0, 0);
   };
 
+  React.useEffect(() => {
+    fetchPizzas();
+  }, [categoryId, sortId.type, currentPage, searchValue]);
   
-  React.useEffect(() => {
-    const query = qs.stringify({
-      type: sortId.type,
-      categoryId: categoryId > 0 ? categoryId : null,
-      currentPage,
-    });
-
-    navigate(`?${query}`);
-    isMounted.current = true;
-  }, [categoryId, sortId.type, currentPage]);
-
-
-  React.useEffect(() => {
-    // if (window.location.search) {
-    //   const params = qs.parse(window.location.search.substring(1));
-    //   if (
-    //     initialState.categoryId === Number(params.categoryId) &&
-    //     initialState.selectedSort === params.selectedSort &&
-    //     initialState.currentPage === Number(params.currentPage)
-    //   ) {
-    //     fetchPizzas();
-    //   }
-      
-    //   const sort = listPopup.find((obj) => obj.type === params.type);
-      
-    //   dispatch(setFilters({
-    //     ...params,
-    //     sortId: sort,
-    //   }),
-    //   );
-    //   isSearch.current = true;
-    // }
-    fetchPizzas();
-  }, [categoryId, sortId.type, searchValue, currentPage]);
-
-
-  React.useEffect(() => {
-    if (!isSearch.current) {
-    fetchPizzas();
-    }
-    isSearch.current = false;
-  }, [categoryId, sortId.type, searchValue, currentPage]);
+  const pizzas = items.map((obj: any) => <Product key={obj.id} {...obj} />);
+  const skeletons = [...new Array(6)].map((_, index) => <Skeleton key={index} />);
 
   return (
     <div className="container">
       <div className="content__top">
         <Categories value={categoryId} onChangeCategory={(id) => onChangeCategory(id)}/>
-        <Sort value={sortId} onClickSort={(id) => dispatch(setSortId(id))}/>
+        <Sort value={sortId}/>
       </div>
       <h2 className="content__title">Все пиццы</h2>
-      {status === 'error' 
+      {status === Status.FAILED
       ? 
-        <NotFounded/>
+        (<NotFounded/>)
       : 
         (
-          <div className="content__items"> 
-          {status === 'loading'
-            ? [...new Array(6)].map((_, index) =>   <Skeleton key={index} />)
-            : items.map((pizza: any, i: number) => <Link to={`/pizza/${pizza.id}`} key={i}><Product  {...pizza}/></Link>)}
-          </div>
+          <div className="content__items">{status === Status.LOADING ? skeletons : pizzas}</div>
         )
       }
       <Pagination currentPage = {currentPage} onChangePage = {(number) => dispatch(setCurrentPage(number))}/>

@@ -1,38 +1,38 @@
 import React from "react";
 import { useWhyDidYouUpdate } from "ahooks";
+import { Sort, SortTypeEnum, setSortId } from "../redux/slices/filterSlice";
+import { useDispatch } from "react-redux";
 
-type ListPopup = {
+type sortItem = {
   name: string;
-  type: "rating" | "price" | "title"| "-rating" | "-price" | "-title";
+  type: SortTypeEnum;
 }
 
 type SortProps = {
-  value: ListPopup;
-  onClickSort: (obj: ListPopup) => void;
+  value: sortItem;
 }
 
 // type OnClickPopup = MouseEvent & {
 //   path: Node[];
 // }
 
-export const listPopup: ListPopup[] = [
-  {name: "популярности(DESC)", type: "rating"},
-  {name: "популярности(ASC)", type: "-rating"},
-  {name: "цене(DESC)", type: "price"},
-  {name: "цене(ASC)", type: "-price"},
-  {name: "алфавиту(DESC)", type: "title"},
-  {name: "алфавиту(ASC)", type: "-title"},
+export const sortList: sortItem[] = [
+  {name: "популярности(DESC)", type: SortTypeEnum.RATING_DESC},
+  {name: "популярности(ASC)", type: SortTypeEnum.RATING_ASC},
+  {name: "цене(DESC)", type: SortTypeEnum.PRICE_DESC},
+  {name: "цене(ASC)", type: SortTypeEnum.PRICE_ASC},
+  {name: "алфавиту(DESC)", type: SortTypeEnum.TITLE_DESC},
+  {name: "алфавиту(ASC)", type: SortTypeEnum.TITLE_ASC},
 ];
 
-const Sort: React.FC<SortProps> = React.memo(({value, onClickSort}) =>  {
-  // useWhyDidYouUpdate('Sort', { value, onClickSort});
+const SortPopup: React.FC<SortProps> = React.memo(({value}) =>  {
+  const dispatch = useDispatch();
   const [openPopup, setOpenPopup] = React.useState(false);
   const sortRef = React.useRef<HTMLDivElement>(null);
-  console.log('render');
-  const onSelectItem = (obj: ListPopup) => {
-    onClickSort(obj);
+  const onSelectItem = (obj: sortItem) => {
+    dispatch(setSortId(obj));
     setOpenPopup(false);
-    console.log(obj);
+    
   };
 
   React.useEffect(() => {
@@ -77,7 +77,7 @@ const Sort: React.FC<SortProps> = React.memo(({value, onClickSort}) =>  {
       {openPopup && (
         <div className="sort__popup">
           <ul>
-            {listPopup.map((obj, index) => (
+            {sortList.map((obj, index) => (
               <li
                 key={index}
                 className={value.type === obj.type ? "active" : ""}
@@ -93,4 +93,4 @@ const Sort: React.FC<SortProps> = React.memo(({value, onClickSort}) =>  {
   );
 });
 
-export default Sort;
+export default SortPopup;

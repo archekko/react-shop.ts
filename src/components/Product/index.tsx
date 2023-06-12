@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { addItems } from "../../redux/slices/cartSlice";
 import { selectCartItemsByID } from "../../redux/slices/cartSlice";
 import { Product } from "../../redux/slices/productsSlice";
+import { Link } from "react-router-dom";
 
 
 type ItemProps = {
@@ -36,19 +37,17 @@ const ProductPizza: React.FC<ItemProps> = ({id, imageUrl, title, price, sizes, t
       types: typesNames[activeType],
       count: 0
     }
-    event.preventDefault();
     dispatch(addItems(item));
   };
 
-  const onClickEventPD = (event: React.MouseEvent<HTMLDivElement>) => {
-    event.preventDefault();
-  };
 
   return (
     <div className="pizza-block">
+      <Link to={`/product/${id}`}>
       <img className="pizza-block__image" src={imageUrl} alt="Pizza" />
       <h4 className="pizza-block__title">{title}</h4>
-      <div onClick={onClickEventPD} className="pizza-block__selector">
+      </Link>
+      <div className="pizza-block__selector">
         <ul>
           {types.map((typeIndex) => (
             <li

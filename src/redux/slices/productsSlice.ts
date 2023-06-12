@@ -1,9 +1,17 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import { Sort } from "./filterSlice";
+import { RootState } from "../store";
 
-type fetchProductsParams = Record<string, string>;
+export type SearchProductParams = {
+    currentPage: string,
+    search: string,
+    category: string,
+    sortBy: string, 
+    order: string
+}
 
-export const fetchProducts = createAsyncThunk('products/fetchProductsStatus', async (params: fetchProductsParams) => {
+export const fetchProducts = createAsyncThunk('products/fetchProductsStatus', async (params: SearchProductParams) => {
     const {currentPage, search, category, sortBy, order} = params;
     const {data} = await axios.get<Product[]>(`https://6458ed6a8badff578efef80d.mockapi.io/items?page=${currentPage}&limit=4${search}${category}&sortBy=${sortBy}&order=${order}`);
     return data as Product[];
@@ -18,7 +26,8 @@ export type Product = {
     types: string;
     count: number;
 }
-enum Status {
+
+export enum Status {
     LOADING = 'loading',
     SUCCEEDED = 'succeeded',
     FAILED = 'failed',
@@ -32,6 +41,7 @@ export const initialState: ProductSliceState = {
   items: [],
   status: Status.LOADING,
 };
+
 
 export const productsSlice = createSlice({
   name: "products",
@@ -57,6 +67,7 @@ export const productsSlice = createSlice({
     },
 });
 
+export const selectProductData = (state: RootState) => state.products;
 // Action creators are generated for each case reducer function
 export const { setItems } = productsSlice.actions;
 
